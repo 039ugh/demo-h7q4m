@@ -114,7 +114,7 @@ h1{font-size:clamp(34px,4.4vw,58px);line-height:1.02;font-weight:800;margin:8px 
 .pin{z-index:2}.pin.dot{z-index:1;margin-left:0!important}
 .pin:hover,.pin.on{background:var(--accent);z-index:3}.pin:hover::after,.pin.on::after{background:var(--accent)}
 .pin:hover span,.pin.on span{color:var(--accent-ink)}
-.pin.dot{padding:0;width:16px;height:16px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);box-shadow:0 0 0 4px rgba(255,212,0,.35)}
+.pin.dot{padding:0;width:24px;height:24px;border-radius:50%;background:var(--accent);border:5px solid rgba(255,212,0,.4);background-clip:padding-box;transform:translate(-50%,-50%);box-shadow:none}
 .pin.dot>*,.pin.dot::after,.pin.dot::before{display:none}
 .pin.dot.on,.pin.dot:hover{padding:7px 11px;width:auto;height:auto;border-radius:10px;transform:translate(-50%,calc(-100% - 6px))}
 .pin.dot.on>*,.pin.dot:hover>*{display:inline}
@@ -387,7 +387,7 @@ function placePins(){
   const fp=$('#fplan'), part=fp.querySelector('.fpart.cur'), pins=$('#pins'); if(!part||!pins) return;
   const R=fp.getBoundingClientRect();
   const it=[...part.querySelectorAll('.anc')].map(a=>{const b=a.getBoundingClientRect();return {u:U.find(x=>x.id===a.dataset.a),px:+a.dataset.px,x:b.left+b.width/2-R.left,y:b.top+b.height/2-R.top}});
-  pins.innerHTML=it.map(o=>`<button class="pin" data-id="${o.u.id}" style="left:${o.x}px;top:${o.y}px" aria-label="Byt ${o.u.id}, ${o.u.layout}, ${mil(o.u.price)}"><b>${o.u.layout}</b><span>${mil(o.u.price)}</span></button>`).join('');
+  pins.innerHTML=it.map(o=>`<button class="pin" data-id="${o.u.id}" style="left:${o.x}px;top:${o.y}px" aria-label="${o.u.layout} ${mil(o.u.price)}, byt ${o.u.id}"><b>${o.u.layout}</b><span>${mil(o.u.price)}</span></button>`).join('');
   [...pins.children].forEach(el=>{const b=el.getBoundingClientRect(),lo=R.left+4-b.left,hi=R.right-4-b.right,dx=lo>0?lo:hi<0?hi:0;if(dx){el.style.marginLeft=dx+'px';el.style.setProperty('--dx',-dx+'px')}});
   const placed=[];
   [...pins.children].map((el,i)=>({el,px:it[i].px})).sort((a,b)=>b.px-a.px).forEach(({el})=>{
