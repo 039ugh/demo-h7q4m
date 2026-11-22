@@ -93,14 +93,19 @@ h1{font-size:clamp(34px,4.4vw,58px);line-height:1.02;font-weight:800;margin:8px 
 .gal .prev{left:18px}.gal .next{right:18px}
 .nomodel{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);color:var(--muted);font-size:13px;background:rgba(15,18,24,.7);padding:7px 12px;border-radius:8px;white-space:nowrap;z-index:2}
 
-.fplan{position:absolute;inset:70px 196px 28px 28px;display:none;gap:22px;justify-content:center;align-items:center}
+.fplan{position:absolute;inset:70px 196px 76px 28px;display:none;gap:22px;justify-content:center;align-items:center}
 .fpart{display:flex;flex-direction:column;gap:8px;align-items:center}
 .fpart>span{font-size:12px;font-weight:700;color:var(--muted)}
 .fplan svg{display:block;background:#fff;border-radius:14px;box-shadow:0 30px 60px rgba(0,0,0,.45)}
 .fu{fill:#ffd400;fill-opacity:.5;mix-blend-mode:multiply;cursor:pointer;transition:fill-opacity .15s}
 .fu:hover,.fu.on{fill-opacity:1}
+.v3d .fu{mix-blend-mode:normal;fill-opacity:.3;filter:url(#ol)}
+.v3d .fu:hover,.v3d .fu.on{fill-opacity:.5}
+.v3d svg{background:#e9e4dc}
+.v3d .fl text{paint-order:stroke;stroke:#fff;stroke-width:4px}
 .fl{font-weight:800;fill:#14171d;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
 .fl.sm{opacity:0;transition:opacity .15s}.fl.sm.on{opacity:1}
+.legend[hidden]{display:none}
 .legend{position:absolute;right:24px;bottom:22px;display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);background:rgba(15,18,24,.75);padding:8px 12px;border-radius:8px}
 .legend i{width:14px;height:14px;border-radius:3px;background:#ffd400}
 .fhint{color:var(--muted);font-size:14px;margin:14px 0 4px}
@@ -156,7 +161,7 @@ details.rooms summary::after{content:" ▾"}
   .info .scroll{padding:16px}
   .info h2{font-size:26px}.price{font-size:22px;margin-top:10px}
   .mini{width:96px;right:12px;top:12px}
-  .fplan{inset:52px 116px 10px 10px;gap:8px}.legend{display:none}
+  .fplan{inset:52px 116px 56px 10px;gap:8px}.legend{display:none}
   .model img{max-height:36vh}
   .vlabel{left:12px;top:12px}
   .tabs{bottom:10px}.tabs button{padding:8px 12px;font-size:13px}
@@ -318,7 +323,7 @@ function setMini(f){mv.querySelectorAll('.fcp').forEach(p=>p.setAttribute('point
 function mode(m){
   const fl=m==='floor';
   $('#fplan').style.display=fl?'flex':'none'; $('#legend').hidden=!fl;
-  $('#tabs').style.display=fl?'none':'flex';
+  $('#tabs').style.display='flex';
   if(fl){$('#model').style.display='none';$('#gal').style.display='none';$('#nomodel').hidden=true;clearInterval(gt)}
 }
 function fitPlan(){
@@ -330,12 +335,17 @@ function fitPlan(){
   sv.forEach((v,i)=>{v.style.height=h+'px';v.style.width=h*ar[i]+'px'});
 }
 addEventListener('resize',fitPlan);
-function openFloor(f){
+let fview='3d';
+function openFloor(f,v){
+  if(v) fview=v;
   cur=null; const l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('floor');
   const byN=Object.fromEntries(U.map(u=>[u.n,u]));
-  const parts=FLOORPLANS[f]||[];
+  const parts=FLOORPLANS[f]||[], has3d=parts.some(p=>p.src3d), v3=has3d&&fview==='3d';
+  $('#fplan').classList.toggle('v3d',v3);
+  $('#tabs').innerHTML=(has3d?[['3d','3D patro'],['map','Technický plán']]:[['map','Plán patra']]).map(t=>`<button data-t="${t[0]}" class="${(t[0]==='3d')===v3?'on':''}">${t[1]}</button>`).join('');
+  $('#tabs').onclick=e=>{const t=e.target.dataset.t;if(t)openFloor(f,t)};
   $('#fplan').innerHTML=parts.map((pt,pi)=>`<div class="fpart">${parts.length>1?`<span>Část domu ${'ABC'[pi]}</span>`:''}<svg viewBox="0 0 ${pt.w} ${pt.h}" style="aspect-ratio:${pt.w}/${pt.h}">
-    <image href="${pt.src}" width="${pt.w}" height="${pt.h}"/>
+    <defs><filter id="ol" x="-5%" y="-5%" width="110%" height="110%"><feMorphology in="SourceAlpha" operator="dilate" radius="3" result="d"/><feComposite in="d" in2="SourceAlpha" operator="out" result="e"/><feFlood flood-color="#ffd400"/><feComposite in2="e" operator="in" result="o"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="o"/></feMerge></filter></defs><image href="${v3&&pt.src3d?pt.src3d:pt.src}" width="${pt.w}" height="${pt.h}"/>
     ${pt.units.map(x=>{const u=byN[x.n];return `<path class="fu" data-id="${u.id}" d="${x.d}"><title>${u.id} · ${u.layout} · ${m2(u.area)} · ${mil(u.price)}</title></path>`}).join('')}
     ${pt.units.map(x=>{const u=byN[x.n],big=x.px>1500,fs=big?Math.max(16,Math.min(30,Math.sqrt(x.px)*.45)):15;
       return `<g class="fl ${big?'':'sm'}" data-for="${u.id}"><text x="${x.cx}" y="${x.cy-fs*.55}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${u.layout} · ${m2(u.area)}</text><text x="${x.cx}" y="${x.cy+fs*.65}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${mil(u.price)}</text></g>`}).join('')}
@@ -349,7 +359,7 @@ function openFloor(f){
       if(hit) g.classList.add('sm'); else placed.push(b);
     });
   });
-  $('#vlabel').innerHTML=`<span class="pill">${fname(f)} · plán podlaží</span>`;
+  $('#vlabel').innerHTML=`<span class="pill">${fname(f)} · ${v3?'3D pohled na patro':'technický plán'}</span>`;
   $('#info').innerHTML=`${navRow(f,'Dům')}
     <h2>${fname(f)}</h2>
     <div class="sub">${l.length} ${l.length===1?'volný byt':l.length<5?'volné byty':'volných bytů'} · od ${mil(Math.min(...l.map(u=>u.price)))} · ${P.house}</div>
@@ -369,7 +379,7 @@ function openFloor(f){
 }
 function openApt(u){
   cur=u; const f=u.floor, l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('apt');
-  const tabs=[u.model&&['3d','3D byt'],['plan','Půdorys'],['foto','Fotografie']].filter(Boolean);
+  const tabs=[u.model&&['3d','3D byt'],['foto','Fotografie'],['plan','Technický půdorys']].filter(Boolean);
   $('#tabs').innerHTML=tabs.map((t,i)=>`<button data-t="${t[0]}" class="${i?'':'on'}">${t[1]}</button>`).join('');
   $('#tabs').onclick=e=>{const t=e.target.dataset.t;if(t)show(t)};
   show(tabs[0][0],true);
@@ -433,7 +443,7 @@ document.querySelectorAll('[data-todo]').forEach(a=>a.addEventListener('click',e
 /* deep links for screenshots / video: #hover=8  #apt=H362&tab=plan  #still */
 const Q=Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(x=>x.split('=')));
 if('still' in Q||Q.hover||Q.apt||Q.floor) stopInvite();
-if(Q.floor){openFloor(+Q.floor);if(Q.unit){const id='H '+Q.unit;document.querySelectorAll('#fplan .fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));document.querySelectorAll('#fplan .fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));document.querySelectorAll('#info .unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))}}
+if(Q.floor){openFloor(+Q.floor,Q.fv);if(Q.unit){const id='H '+Q.unit;document.querySelectorAll('#fplan .fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));document.querySelectorAll('#fplan .fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));document.querySelectorAll('#info .unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))}}
 if(Q.apt){const u=U.find(u=>u.id.replace(' ','')===Q.apt);openApt(u);if(Q.tab)show(Q.tab)}
 if(Q.hover){const f=+Q.hover;hl(f);const q=P.floors[f],ix=1120;
   const at=(a,b)=>a[1]+(b[1]-a[1])*(ix-a[0])/(b[0]-a[0]);
