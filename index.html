@@ -96,6 +96,12 @@ h1{font-size:clamp(34px,4.4vw,58px);line-height:1.02;font-weight:800;margin:8px 
 .fplan{position:absolute;inset:70px 196px 76px 28px;display:none;gap:22px;justify-content:center;align-items:center}
 .fpart{display:flex;flex-direction:column;gap:8px;align-items:center}
 .fpart>span{font-size:12px;font-weight:700;color:var(--muted)}
+.fsw{display:none}
+.fplan.one .fpart{display:none}.fplan.one .fpart.cur{display:flex}.fplan.one .fpart>span{display:none}
+.fplan.one .fsw{display:flex;position:absolute;top:-40px;left:0;right:76px;justify-content:flex-start;gap:6px}
+.fsw button{background:rgba(15,18,24,.85);color:var(--txt);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700}
+.fsw button.on{background:#fff;color:#14171d}
+.fsw button i{font-style:normal;color:#b08f00;margin-left:4px}.fsw button.on i{color:#8a6f00}
 .fplan svg{display:block;background:#fff 0 0/100% 100% no-repeat;border-radius:14px;box-shadow:0 30px 60px rgba(0,0,0,.45)}
 .fu{fill:#ffd400;fill-opacity:.4;stroke:#e0b800;stroke-width:2;stroke-linejoin:round;cursor:pointer;transition:fill-opacity .15s}
 .fu:hover,.fu.on{fill-opacity:.7}
@@ -328,13 +334,18 @@ function mode(m){
 }
 function fitPlan(){
   const fp=$('#fplan'); if(fp.style.display!=='flex') return;
-  const sv=[...fp.querySelectorAll('svg')]; if(!sv.length) return;
+  const sv=[...fp.querySelectorAll('svg')].filter(v=>getComputedStyle(v.parentNode).display!=='none'); if(!sv.length) return;
   const r=fp.getBoundingClientRect(), cap=sv.length>1?26:0, gap=parseFloat(getComputedStyle(fp).columnGap)||0;
   const ar=sv.map(v=>{const b=v.viewBox.baseVal;return b.width/b.height}), sum=ar.reduce((a,b)=>a+b,0);
   const h=Math.max(80,Math.min(r.height-cap,(r.width-gap*(sv.length-1))/sum));
   sv.forEach((v,i)=>{v.style.height=h+'px';v.style.width=h*ar[i]+'px'});
 }
-addEventListener('resize',fitPlan);
+const isMob=()=>matchMedia('(max-width:860px)').matches;
+let fcur=null;
+function setPart(i){const fp=$('#fplan'),ps=[...fp.querySelectorAll('.fpart')];if(ps.length<2){fp.classList.remove('one');return}
+  if(i!=null) fcur=i; fp.classList.toggle('one',isMob());ps.forEach((p,k)=>p.classList.toggle('cur',k===fcur));
+  fp.querySelectorAll('.fsw button').forEach((b,k)=>b.classList.toggle('on',k===fcur));fitPlan()}
+addEventListener('resize',()=>setPart());
 let fview='3d';
 function openFloor(f,v){
   if(v) fview=v;
@@ -348,8 +359,8 @@ function openFloor(f,v){
     ${pt.units.map(x=>{const u=byN[x.n];return `<path class="fu" data-id="${u.id}" d="${x.d}"><title>${u.id} · ${u.layout} · ${m2(u.area)} · ${mil(u.price)}</title></path>`}).join('')}
     ${pt.units.map(x=>{const u=byN[x.n],big=x.px>1500,fs=big?Math.max(16,Math.min(30,Math.sqrt(x.px)*.45)):15;
       return `<g class="fl ${big?'':'sm'}" data-for="${u.id}"><text x="${x.cx}" y="${x.cy-fs*.55}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${u.layout} · ${m2(u.area)}</text><text x="${x.cx}" y="${x.cy+fs*.65}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${mil(u.price)}</text></g>`}).join('')}
-  </svg></div>`).join('');
-  fitPlan();
+  </svg></div>`).join('')+(parts.length>1?`<div class="fsw">${parts.map((pt,pi)=>`<button data-p="${pi}">Část ${'ABC'[pi]}<i>${pt.units.length}</i></button>`).join('')}</div>`:'');
+  $('#fplan').classList.remove('one'); fitPlan();
   // popisky, ktere by se prekryvaly, se ukazou az po najeti
   $('#fplan').querySelectorAll('svg').forEach(sv=>{
     const placed=[];
@@ -358,6 +369,7 @@ function openFloor(f,v){
       if(hit) g.classList.add('sm'); else placed.push(b);
     });
   });
+  { let best=0; parts.forEach((pt,pi)=>{if(pt.units.length>parts[best].units.length)best=pi}); setPart(best); }
   $('#vlabel').innerHTML=`<span class="pill">${fname(f)} · ${v3?'3D pohled na patro':'technický plán'}</span>`;
   $('#info').innerHTML=`${navRow(f,'Dům')}
     <h2>${fname(f)}</h2>
@@ -371,8 +383,8 @@ function openFloor(f,v){
   $('#back').onclick=closeApt;
   $('#fdn').onclick=()=>openFloor(FL[fi-1]); $('#fup').onclick=()=>openFloor(FL[fi+1]);
   const lst=$('#info').querySelector('.others'), fp=$('#fplan');
-  const mark=id=>{fp.querySelectorAll('.fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));fp.querySelectorAll('.fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));lst.querySelectorAll('.unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))};
-  lst.onclick=fp.onclick=e=>{const b=e.target.closest('[data-id]'); if(b) openApt(U.find(x=>x.id===b.dataset.id))};
+  const mark=id=>{{const pth=fp.querySelector(`.fu[data-id="${id}"]`),ps=[...fp.querySelectorAll('.fpart')];if(pth&&ps.length>1&&fp.classList.contains('one')){const k=ps.indexOf(pth.closest('.fpart'));if(k!==fcur)setPart(k)}}fp.querySelectorAll('.fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));fp.querySelectorAll('.fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));lst.querySelectorAll('.unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))};
+  lst.onclick=fp.onclick=e=>{const sw=e.target.closest('[data-p]'); if(sw){setPart(+sw.dataset.p);return} const b=e.target.closest('[data-id]'); if(b) openApt(U.find(x=>x.id===b.dataset.id))};
   lst.onmouseover=fp.onmouseover=e=>{const b=e.target.closest('[data-id]'); mark(b?b.dataset.id:null)};
   $('#info').scrollTop=0; $('#apt').classList.add('open');
 }
@@ -442,7 +454,7 @@ document.querySelectorAll('[data-todo]').forEach(a=>a.addEventListener('click',e
 /* deep links for screenshots / video: #hover=8  #apt=H362&tab=plan  #still */
 const Q=Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(x=>x.split('=')));
 if('still' in Q||Q.hover||Q.apt||Q.floor) stopInvite();
-if(Q.floor){openFloor(+Q.floor,Q.fv);if(Q.unit){const id='H '+Q.unit;document.querySelectorAll('#fplan .fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));document.querySelectorAll('#fplan .fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));document.querySelectorAll('#info .unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))}}
+if(Q.floor){openFloor(+Q.floor,Q.fv);if(Q.unit){const id='H '+Q.unit;{const pth=document.querySelector(`#fplan .fu[data-id="${id}"]`);if(pth){const ps=[...document.querySelectorAll('#fplan .fpart')];setPart(ps.indexOf(pth.closest('.fpart')))}}document.querySelectorAll('#fplan .fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));document.querySelectorAll('#fplan .fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));document.querySelectorAll('#info .unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))}}
 if(Q.apt){const u=U.find(u=>u.id.replace(' ','')===Q.apt);openApt(u);if(Q.tab)show(Q.tab)}
 if(Q.hover){const f=+Q.hover;hl(f);const q=P.floors[f],ix=1120;
   const at=(a,b)=>a[1]+(b[1]-a[1])*(ix-a[0])/(b[0]-a[0]);
