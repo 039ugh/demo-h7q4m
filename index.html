@@ -93,27 +93,47 @@ h1{font-size:clamp(34px,4.4vw,58px);line-height:1.02;font-weight:800;margin:8px 
 .gal .prev{left:18px}.gal .next{right:18px}
 .nomodel{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);color:var(--muted);font-size:13px;background:rgba(15,18,24,.7);padding:7px 12px;border-radius:8px;white-space:nowrap;z-index:2}
 
-.fplan{position:absolute;inset:70px 196px 76px 28px;display:none;gap:22px;justify-content:center;align-items:center}
-.fpart{display:flex;flex-direction:column;gap:8px;align-items:center}
-.fpart>span{font-size:12px;font-weight:700;color:var(--muted)}
-.fsw{display:none}
-.fplan.one .fpart{display:none}.fplan.one .fpart.cur{display:flex}.fplan.one .fpart>span{display:none}
-.fplan.one .fsw{display:flex;position:absolute;top:-40px;left:0;right:76px;justify-content:flex-start;gap:6px}
-.fsw button{background:rgba(15,18,24,.85);color:var(--txt);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700}
-.fsw button.on{background:#fff;color:#14171d}
-.fsw button i{font-style:normal;color:#b08f00;margin-left:4px}.fsw button.on i{color:#8a6f00}
-.fplan svg{display:block;background:#fff 0 0/100% 100% no-repeat;border-radius:14px;box-shadow:0 30px 60px rgba(0,0,0,.45)}
-.fu{fill:#ffd400;fill-opacity:.4;stroke:#e0b800;stroke-width:2;stroke-linejoin:round;cursor:pointer;transition:fill-opacity .15s}
-.fu:hover,.fu.on{fill-opacity:.7}
-.v3d .fu{fill-opacity:.22;stroke:#ffd400;stroke-width:3;stroke-linejoin:round}
-.v3d .fu:hover,.v3d .fu.on{fill-opacity:.45}
-.v3d svg{background-color:#e9e4dc}
-.v3d .fl text{paint-order:stroke;stroke:#fff;stroke-width:4px}
-.fl{font-weight:800;fill:#14171d;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
-.fl.sm{opacity:0;transition:opacity .15s}.fl.sm.on{opacity:1}
-.legend[hidden]{display:none}
-.legend{position:absolute;right:24px;bottom:22px;display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);background:rgba(15,18,24,.75);padding:8px 12px;border-radius:8px}
-.legend i{width:14px;height:14px;border-radius:3px;background:#ffd400}
+.fplan{position:absolute;inset:74px 64px 84px 112px;display:none}
+.fpart{position:absolute;inset:0;display:none;align-items:center;justify-content:center;perspective:2200px;perspective-origin:50% 35%}
+.fpart.cur,.fpart.ghost{display:flex}
+.plate{position:relative;transform-style:preserve-3d;transform:rotateX(54deg) rotateZ(-34deg)}
+.plate svg,.slab,.shd{-webkit-mask:var(--cut) 0 0/100% 100% no-repeat;mask:var(--cut) 0 0/100% 100% no-repeat}
+.plate svg{position:relative;display:block;background:var(--cut) 0 0/100% 100% no-repeat}
+.slab{position:absolute;inset:0;background:#5d5852;transform:translateZ(-14px)}
+.slab.s2{background:#8a847b;transform:translateZ(-7px)}
+.shd{position:absolute;inset:0;background:#000;opacity:.55;transform:translateZ(-60px) scale(1.02);filter:blur(22px)}
+.dimr{fill:#10131a;opacity:.46;pointer-events:none}
+.fu{fill:#ffd400;fill-opacity:.14;stroke:#ffd400;stroke-width:4;stroke-linejoin:round;cursor:pointer;transition:fill-opacity .15s}
+.fu:hover,.fu.on{fill-opacity:.42}
+.anc{fill:none}
+.pins{position:absolute;inset:0;pointer-events:none;z-index:2}
+.pin{position:absolute;pointer-events:auto;transform:translate(-50%,calc(-100% - 16px));background:#fff;color:#14171d;border-radius:10px;padding:7px 11px;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,.4);display:flex;gap:7px;align-items:baseline;transition:background .15s}
+.pin::after{content:"";position:absolute;left:calc(50% + var(--dx,0px));top:100%;width:2px;height:16px;background:#fff;transform:translateX(-50%)}
+.pin::before{content:"";position:absolute;left:calc(50% + var(--dx,0px));top:calc(100% + 13px);width:8px;height:8px;border-radius:50%;background:#ffd400;transform:translateX(-50%);box-shadow:0 0 0 3px rgba(255,212,0,.35)}
+.pin span{font-weight:700;color:#4a4f5a}
+.pin{z-index:2}.pin.dot{z-index:1;margin-left:0!important}
+.pin:hover,.pin.on{background:var(--accent);z-index:3}.pin:hover::after,.pin.on::after{background:var(--accent)}
+.pin:hover span,.pin.on span{color:var(--accent-ink)}
+.pin.dot{padding:0;width:16px;height:16px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%);box-shadow:0 0 0 4px rgba(255,212,0,.35)}
+.pin.dot>*,.pin.dot::after,.pin.dot::before{display:none}
+.pin.dot.on,.pin.dot:hover{padding:7px 11px;width:auto;height:auto;border-radius:10px;transform:translate(-50%,calc(-100% - 6px))}
+.pin.dot.on>*,.pin.dot:hover>*{display:inline}
+.tabs button i{font-style:normal;margin-left:6px;color:#b08f00}.tabs button.on i{color:#8a6f00}
+.tabs button:disabled{opacity:.35;cursor:default}
+.crumbs{display:flex;align-items:center;gap:6px;background:rgba(15,18,24,.8);border:1px solid var(--line);padding:6px 8px;border-radius:999px;font-size:14px;font-weight:700}
+.crumbs button{padding:4px 8px;border-radius:999px;color:var(--muted)}.crumbs button:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+.crumbs i{font-style:normal;color:var(--muted);opacity:.6}.crumbs b{padding:4px 8px}
+.rail{position:absolute;left:20px;top:84px;bottom:84px;display:flex;flex-direction:column;justify-content:center;gap:4px;z-index:2}
+.rail>span{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;text-align:center;margin-bottom:4px}
+.rail button{display:flex;align-items:center;justify-content:space-between;gap:6px;width:64px;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.06);font-weight:800;font-size:14px}
+.rail button i{font-style:normal;font-size:11px;font-weight:800;color:var(--accent)}
+.rail button:hover{background:rgba(255,255,255,.14)}
+.rail button.on{background:var(--accent);color:var(--accent-ink)}.rail button.on i{color:var(--accent-ink)}
+.rail button:disabled{opacity:.28;cursor:default;background:none}
+.astep{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 0;padding:8px;border-radius:12px;background:rgba(255,255,255,.05)}
+.astep button{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);font-weight:800;font-size:14px;white-space:nowrap}
+.astep button:disabled{opacity:.3;cursor:default}
+.astep span{color:var(--muted);font-size:13px;text-align:center}
 .fhint{color:var(--muted);font-size:14px;margin:14px 0 4px}
 .info{border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:#14171d}
 .info .scroll{overflow:auto;padding:22px 24px 12px;flex:1;min-height:0}
@@ -167,7 +187,7 @@ details.rooms summary::after{content:" ▾"}
   .info .scroll{padding:16px}
   .info h2{font-size:26px}.price{font-size:22px;margin-top:10px}
   .mini{width:72px;right:10px;top:10px}
-  .fplan{inset:96px 8px 54px 8px;gap:6px}.legend{display:none}
+  .fplan{inset:58px 6px 60px 6px}.rail{display:none}.plate{transform:rotateX(50deg) rotateZ(-62deg)}.pin{font-size:12px;padding:5px 8px}.crumbs{font-size:12px;padding:4px 6px}
   .model img{max-height:36vh}
   .vlabel{left:12px;top:12px}
   .tabs{bottom:10px}.tabs button{padding:8px 12px;font-size:13px}
@@ -206,7 +226,8 @@ details.rooms summary::after{content:" ▾"}
     <div class="mini" id="mini" title="Zpět na dům"></div>
     <div class="model" id="model"></div>
     <div class="gal" id="gal"></div>
-    <div class="fplan" id="fplan"></div><div class="legend" id="legend" hidden><i></i>volné byty podle ceníku</div>
+    <div class="rail" id="rail"></div>
+    <div class="fplan" id="fplan"></div>
     <div class="nomodel" id="nomodel" hidden></div>
     <div class="tabs" id="tabs"></div>
   </div>
@@ -312,13 +333,17 @@ function resetHouse(){
   const fr=$('#frame'); fr.style.transform=''; document.body.classList.remove('zooming'); hl(-1);
 }
 
-/* apartment view: 3D first, info + other flats of the floor on the right */
+/* apartment view: building -> floor (tilted 3D plate) -> apartment */
 const mini=$('#mini'); mini.innerHTML='<svg id="mv"></svg><span id="mvl"></span>';
 const mv=$('#mv'); houseSvg(mv,false);
 mv.setAttribute('viewBox','800 40 920 920'); mv.setAttribute('preserveAspectRatio','xMidYMid slice');
 mv.querySelector('#dim')?.remove(); mv.querySelectorAll('#lit,#glow').forEach(e=>e.style.opacity=1);
 mini.onclick=closeApt;
-let cur=null, gi=0, gt;
+const ANIM=!SHOT&&!matchMedia('(prefers-reduced-motion:reduce)').matches;
+const EASE='cubic-bezier(.2,.7,.2,1)';
+const anim=(el,kf,ms)=>ANIM&&el?el.animate(kf,{duration:ms,easing:EASE}):null;
+const nfree=n=>n===1?'volný byt':n>1&&n<5?'volné byty':'volných bytů';
+let cur=null, curF=null, gi=0, gt;
 const unitList=(l,u)=>l.map(o=>`<button class="unit ${o===u?'cur':''}" data-id="${o.id}">
         <span class="th ${o.thumb?'':'pl'}" style="background-image:url(${o.thumb||o.plan})"></span>
         <span><b>${nb(o.id)}</b> · ${o.layout}${o.model?'<span class="tag">3D</span>':''}<div class="m">${m2(o.area)}${o.outdoor?` + ${m2(o.outdoor)}`:''} · ${nb(o.orient)}</div></span>
@@ -326,78 +351,135 @@ const unitList=(l,u)=>l.map(o=>`<button class="unit ${o===u?'cur':''}" data-id="
 const navRow=(f,back)=>{const fi=FL.indexOf(f);return `<div class="navrow"><button class="back" id="back">← ${back}</button>
       <div class="fstep"><button id="fdn" aria-label="Patro níž" ${fi===0?'disabled':''}>↓</button><span>${fname(f)}</span><button id="fup" aria-label="Patro výš" ${fi===FL.length-1?'disabled':''}>↑</button></div></div>`};
 function setMini(f){mv.querySelectorAll('.fcp').forEach(p=>p.setAttribute('points',pts(P.floors[f])));$('#mvl').textContent=fname(f)}
+function crumbs(f,u){
+  $('#vlabel').innerHTML=`<nav class="crumbs" aria-label="Kde jsem"><button data-go="house">${P.house}</button><i>›</i>${u?`<button data-go="floor">${fname(f)}</button><i>›</i><b>Byt ${nb(u.id)}</b>`:`<b>${fname(f)}</b>`}</nav>`;
+}
+$('#vlabel').onclick=e=>{const b=e.target.closest('[data-go]');if(!b)return;if(b.dataset.go==='house')closeApt();else backToFloor()};
+function rail(f){
+  let h='<span>Patro</span>';
+  for(let k=P.floors.length-1;k>=0;k--){const c=(byFloor[k]||[]).length;
+    h+=`<button data-f="${k}" class="${k===f?'on':''}" ${c?'':'disabled'} aria-label="${fname(k)}: ${c} ${nfree(c)}">${k===0?'P':k}<i>${c||''}</i></button>`}
+  $('#rail').innerHTML=h;
+}
+$('#rail').onclick=e=>{const b=e.target.closest('[data-f]');if(!b||b.disabled)return;const k=+b.dataset.f;
+  if(cur||k!==curF) openFloor(k,{dir:curF==null||cur?'in':k>curF?'up':'down'})};
 function mode(m){
   const fl=m==='floor';
-  $('#fplan').style.display=fl?'flex':'none'; $('#legend').hidden=!fl;
-  $('#tabs').style.display='flex';
+  $('#fplan').style.display=fl?'block':'none';
   if(fl){$('#model').style.display='none';$('#gal').style.display='none';$('#nomodel').hidden=true;clearInterval(gt)}
 }
-function fitPlan(){
-  const fp=$('#fplan'); if(fp.style.display!=='flex') return;
-  const sv=[...fp.querySelectorAll('svg')].filter(v=>getComputedStyle(v.parentNode).display!=='none'); if(!sv.length) return;
-  const r=fp.getBoundingClientRect(), cap=sv.length>1?26:0, gap=parseFloat(getComputedStyle(fp).columnGap)||0;
-  const ar=sv.map(v=>{const b=v.viewBox.baseVal;return b.width/b.height}), sum=ar.reduce((a,b)=>a+b,0);
-  const h=Math.max(80,Math.min(r.height-cap,(r.width-gap*(sv.length-1))/sum));
-  sv.forEach((v,i)=>{v.style.height=h+'px';v.style.width=h*ar[i]+'px'});
-}
 const isMob=()=>matchMedia('(max-width:860px)').matches;
-let fcur=null;
-function setPart(i){const fp=$('#fplan'),ps=[...fp.querySelectorAll('.fpart')];if(ps.length<2){fp.classList.remove('one');return}
-  if(i!=null) fcur=i; fp.classList.toggle('one',isMob());ps.forEach((p,k)=>p.classList.toggle('cur',k===fcur));
-  fp.querySelectorAll('.fsw button').forEach((b,k)=>b.classList.toggle('on',k===fcur));fitPlan()}
-addEventListener('resize',()=>setPart());
-let fview='3d';
-function openFloor(f,v){
-  if(v) fview=v;
-  cur=null; const l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('floor');
-  const byN=Object.fromEntries(U.map(u=>[u.n,u]));
-  const parts=FLOORPLANS[f]||[], has3d=parts.some(p=>p.src3d), v3=has3d&&fview==='3d';
-  $('#fplan').classList.toggle('v3d',v3);
-  $('#tabs').innerHTML=(has3d?[['3d','3D patro'],['map','Technický plán']]:[['map','Plán patra']]).map(t=>`<button data-t="${t[0]}" class="${(t[0]==='3d')===v3?'on':''}">${t[1]}</button>`).join('');
-  $('#tabs').onclick=e=>{const t=e.target.dataset.t;if(t)openFloor(f,t)};
-  $('#fplan').innerHTML=parts.map((pt,pi)=>`<div class="fpart">${parts.length>1?`<span>Část domu ${'ABC'[pi]}</span>`:''}<svg viewBox="0 0 ${pt.w} ${pt.h}" style="aspect-ratio:${pt.w}/${pt.h};background-image:url('${v3&&pt.src3d?pt.src3d:pt.src}')">
-    ${pt.units.map(x=>{const u=byN[x.n];return `<path class="fu" data-id="${u.id}" d="${x.d}"><title>${u.id} · ${u.layout} · ${m2(u.area)} · ${mil(u.price)}</title></path>`}).join('')}
-    ${pt.units.map(x=>{const u=byN[x.n],big=x.px>1500,fs=big?Math.max(16,Math.min(30,Math.sqrt(x.px)*.45)):15;
-      return `<g class="fl ${big?'':'sm'}" data-for="${u.id}"><text x="${x.cx}" y="${x.cy-fs*.55}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${u.layout} · ${m2(u.area)}</text><text x="${x.cx}" y="${x.cy+fs*.65}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${mil(u.price)}</text></g>`}).join('')}
-  </svg></div>`).join('')+(parts.length>1?`<div class="fsw">${parts.map((pt,pi)=>`<button data-p="${pi}">Část ${'ABC'[pi]}<i>${pt.units.length}</i></button>`).join('')}</div>`:'');
-  $('#fplan').classList.remove('one'); fitPlan();
-  // popisky, ktere by se prekryvaly, se ukazou az po najeti
-  $('#fplan').querySelectorAll('svg').forEach(sv=>{
-    const placed=[];
-    [...sv.querySelectorAll('.fl:not(.sm)')].map(g=>({g,b:g.getBBox()})).sort((a,b)=>b.b.width*b.b.height-a.b.width*a.b.height).forEach(({g,b})=>{
-      const hit=placed.some(q=>!(b.x+b.width<q.x||q.x+q.width<b.x||b.y+b.height<q.y||q.y+q.height<b.y));
-      if(hit) g.classList.add('sm'); else placed.push(b);
-    });
+let fcur=0;
+/* plate size: grow the tilted plate until its projected box fills the stage */
+function fitPlate(){
+  const fp=$('#fplan'), part=fp.querySelector('.fpart.cur'); if(!part||fp.style.display==='none') return;
+  const sv=part.querySelector('svg'), vb=sv.viewBox.baseVal, R=fp.getBoundingClientRect();
+  let w=parseFloat(sv.style.width)||300;
+  for(let i=0;i<4;i++){
+    sv.style.width=w+'px'; sv.style.height=w*vb.height/vb.width+'px';
+    const b=sv.getBoundingClientRect(); w*=Math.min(R.width*.94/b.width,R.height*.9/b.height);
+  }
+  sv.style.width=w+'px'; sv.style.height=w*vb.height/vb.width+'px';
+  placePins();
+}
+/* labels above the free flats; labels that would collide shrink to dots */
+function placePins(){
+  const fp=$('#fplan'), part=fp.querySelector('.fpart.cur'), pins=$('#pins'); if(!part||!pins) return;
+  const R=fp.getBoundingClientRect();
+  const it=[...part.querySelectorAll('.anc')].map(a=>{const b=a.getBoundingClientRect();return {u:U.find(x=>x.id===a.dataset.a),px:+a.dataset.px,x:b.left+b.width/2-R.left,y:b.top+b.height/2-R.top}});
+  pins.innerHTML=it.map(o=>`<button class="pin" data-id="${o.u.id}" style="left:${o.x}px;top:${o.y}px" aria-label="Byt ${o.u.id}, ${o.u.layout}, ${mil(o.u.price)}"><b>${o.u.layout}</b><span>${mil(o.u.price)}</span></button>`).join('');
+  [...pins.children].forEach(el=>{const b=el.getBoundingClientRect(),lo=R.left+4-b.left,hi=R.right-4-b.right,dx=lo>0?lo:hi<0?hi:0;if(dx){el.style.marginLeft=dx+'px';el.style.setProperty('--dx',-dx+'px')}});
+  const placed=[];
+  [...pins.children].map((el,i)=>({el,px:it[i].px})).sort((a,b)=>b.px-a.px).forEach(({el})=>{
+    const b=el.getBoundingClientRect(), hit=placed.some(q=>!(b.right+4<q.left||q.right+4<b.left||b.bottom+4<q.top||q.bottom+4<b.top));
+    if(hit) el.classList.add('dot'); else placed.push(b);
   });
-  { let best=0; parts.forEach((pt,pi)=>{if(pt.units.length>parts[best].units.length)best=pi}); setPart(best); }
-  $('#vlabel').innerHTML=`<span class="pill">${fname(f)} · ${v3?'3D pohled na patro':'technický plán'}</span>`;
-  $('#info').innerHTML=`${navRow(f,'Dům')}
+}
+function setPart(i,dir){
+  const fp=$('#fplan'), ps=[...fp.querySelectorAll('.fpart')]; if(i==null) i=fcur;
+  const old=ps[fcur]; fcur=i; ps.forEach((p,k)=>p.classList.toggle('cur',k===i));
+  [...$('#tabs').children].forEach((b,k)=>b.classList.toggle('on',k===i));
+  fitPlate();
+  if(dir&&old&&old!==ps[i]){const s=dir>0?1:-1;anim(ps[i],[{transform:`translateX(${s*30}%)`,opacity:0},{transform:'none',opacity:1}],450);anim($('#pins'),[{opacity:0},{opacity:0,offset:.6},{opacity:1}],600)}
+}
+addEventListener('resize',()=>{if($('#fplan').style.display==='block')fitPlate()});
+function mark(id){
+  const fp=$('#fplan');
+  if(id){const pth=fp.querySelector(`.fu[data-id="${id}"]`);if(pth){const k=[...fp.querySelectorAll('.fpart')].indexOf(pth.closest('.fpart'));if(k!==fcur)setPart(k,k>fcur?1:-1)}}
+  fp.querySelectorAll('.fu,.pin').forEach(p=>p.classList.toggle('on',p.dataset.id===id));
+  $('#info').querySelectorAll('.unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id));
+}
+const cut=pt=>pt.src3d?pt.src3d.replace('-3d.jpg','-cut.webp'):pt.src;
+function openFloor(f,o={}){
+  const prev=curF, fromApt=cur; cur=null; curF=f;
+  const l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('floor'); rail(f); crumbs(f);
+  const parts=FLOORPLANS[f]||[];
+  let best=0; parts.forEach((pt,pi)=>{if(pt.units.length>parts[best].units.length)best=pi});
+  const unitPart=id=>parts.findIndex(pt=>pt.units.some(x=>'H '+x.n===id||U.find(u=>u.n===x.n)?.id===id));
+  const focus=o.unit||(fromApt&&fromApt.floor===f?fromApt.id:null);
+  fcur=focus&&unitPart(focus)>=0?unitPart(focus):best;
+  const byN=Object.fromEntries(U.map(u=>[u.n,u]));
+  const fp=$('#fplan'), oldPart=fp.querySelector('.fpart.cur');
+  const ghost=oldPart&&prev!=null&&prev!==f&&ANIM?oldPart:null;
+  if(ghost){ghost.classList.remove('cur');ghost.classList.add('ghost');ghost.style.pointerEvents='none';ghost.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'))}
+  fp.innerHTML=parts.map((pt,pi)=>{const id=`m${f}_${pi}`;return `<div class="fpart${pi===fcur?' cur':''}"><div class="plate" style="--cut:url('${cut(pt)}')"><div class="shd"></div><div class="slab"></div><div class="slab s2"></div>
+    <svg viewBox="0 0 ${pt.w} ${pt.h}" role="img" aria-label="${fname(f)}, část ${'ABC'[pi]}">
+    <defs><mask id="${id}"><rect width="${pt.w}" height="${pt.h}" fill="#fff"/>${pt.units.map(x=>`<path d="${x.d}" fill="#000"/>`).join('')}</mask></defs>
+    <rect class="dimr" width="${pt.w}" height="${pt.h}" mask="url(#${id})"/>
+    ${pt.units.map(x=>{const u=byN[x.n];return `<path class="fu" data-id="${u.id}" d="${x.d}"><title>${u.id} · ${u.layout} · ${m2(u.area)} · ${mil(u.price)}</title></path>`}).join('')}
+    ${pt.units.map(x=>`<circle class="anc" r="1" cx="${x.cx}" cy="${x.cy}" data-a="${byN[x.n].id}" data-px="${x.px}"/>`).join('')}
+  </svg></div></div>`}).join('')+'<div class="pins" id="pins"></div>';
+  if(ghost){fp.prepend(ghost)}
+  const multi=parts.length>1;
+  $('#tabs').style.display=multi?'flex':'none';
+  $('#tabs').innerHTML=multi?parts.map((pt,pi)=>`<button data-p="${pi}" class="${pi===fcur?'on':''}">Část ${'ABC'[pi]}<i>${pt.units.length}</i></button>`).join(''):'';
+  $('#tabs').onclick=e=>{const b=e.target.closest('[data-p]');if(b){const k=+b.dataset.p;if(k!==fcur)setPart(k,k>fcur?1:-1)}};
+  fitPlate();
+  $('#info').innerHTML=`${navRow(f,P.house)}
     <h2>${fname(f)}</h2>
-    <div class="sub">${l.length} ${l.length===1?'volný byt':l.length<5?'volné byty':'volných bytů'} · od ${mil(Math.min(...l.map(u=>u.price)))} · ${P.house}</div>
-    <p class="fhint">Klikněte na byt v&nbsp;plánu nebo v&nbsp;seznamu.</p>
+    <div class="sub">${l.length} ${nfree(l.length)} · od ${mil(Math.min(...l.map(u=>u.price)))}</div>
     <div class="others">${unitList(l,null)}</div>
-    <p class="demo-note">Demo pro Central Group. Plán podlaží, ceny a&nbsp;plochy z&nbsp;veřejného ceníku a&nbsp;PDF bytů k&nbsp;${nb(P.stateDate)}.</p>`;
+    <p class="demo-note">Demo pro Central Group. Plán podlaží, ceny a&nbsp;plochy z&nbsp;veřejného ceníku a&nbsp;PDF bytů k&nbsp;${nb(P.stateDate)}. 3D pohled na patro je ilustrační.</p>`;
   $('#weblink').href=`https://www.central-group.cz/prehled-bytu/189?floorLevels%5B0%5D=${f}&search=true`;
   $('#weblink').textContent='Ceník patra';
   const fi=FL.indexOf(f);
   $('#back').onclick=closeApt;
-  $('#fdn').onclick=()=>openFloor(FL[fi-1]); $('#fup').onclick=()=>openFloor(FL[fi+1]);
-  const lst=$('#info').querySelector('.others'), fp=$('#fplan');
-  const mark=id=>{{const pth=fp.querySelector(`.fu[data-id="${id}"]`),ps=[...fp.querySelectorAll('.fpart')];if(pth&&ps.length>1&&fp.classList.contains('one')){const k=ps.indexOf(pth.closest('.fpart'));if(k!==fcur)setPart(k)}}fp.querySelectorAll('.fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));fp.querySelectorAll('.fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));lst.querySelectorAll('.unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))};
-  lst.onclick=fp.onclick=e=>{const sw=e.target.closest('[data-p]'); if(sw){setPart(+sw.dataset.p);return} const b=e.target.closest('[data-id]'); if(b) openApt(U.find(x=>x.id===b.dataset.id))};
+  $('#fdn').onclick=()=>openFloor(FL[fi-1],{dir:'down'}); $('#fup').onclick=()=>openFloor(FL[fi+1],{dir:'up'});
+  const lst=$('#info').querySelector('.others');
+  lst.onclick=fp.onclick=e=>{const b=e.target.closest('[data-id]'); if(b) zoomToApt(b.dataset.id)};
   lst.onmouseover=fp.onmouseover=e=>{const b=e.target.closest('[data-id]'); mark(b?b.dataset.id:null)};
   $('#info').scrollTop=0; $('#apt').classList.add('open');
+  // transitions
+  const part=fp.querySelector('.fpart.cur'), pl=part.querySelector('.plate'), pins=$('#pins');
+  if(focus){mark(focus)}
+  const dir=o.dir||(fromApt?'back':'in');
+  if(ghost){const s=dir==='up'?1:-1;const a=anim(ghost,[{transform:'none',opacity:1},{transform:`translateY(${s*40}%) scale(.92)`,opacity:0}],450);if(a)a.onfinish=()=>ghost.remove();else ghost.remove()}
+  if(dir==='in'){anim(part,[{opacity:0},{opacity:1}],500);anim(pl,[{transform:'rotateX(0deg) rotateZ(0deg) scale(.5) translateY(-20%)'},{transform:getComputedStyle(pl).transform}],900);anim(pins,[{opacity:0},{opacity:0,offset:.75},{opacity:1}],1100)}
+  else if(dir==='up'||dir==='down'){const s=dir==='up'?-1:1;anim(part,[{transform:`translateY(${s*40}%) scale(.92)`,opacity:0},{transform:'none',opacity:1}],550);anim(pins,[{opacity:0},{opacity:0,offset:.7},{opacity:1}],750)}
+  else if(dir==='back'&&focus){const a=part.querySelector(`.anc[data-a="${focus}"]`),r=part.getBoundingClientRect(),b=a.getBoundingClientRect();
+    part.style.transformOrigin=`${b.left-r.left}px ${b.top-r.top}px`;anim(part,[{transform:'scale(2.6)',opacity:0},{transform:'none',opacity:1}],600);anim(pins,[{opacity:0},{opacity:0,offset:.7},{opacity:1}],800)}
+}
+function backToFloor(){ if(cur) openFloor(cur.floor,{dir:'back'}) }
+/* floor -> flat: fly into the chosen flat, then open it */
+function zoomToApt(id){
+  const u=U.find(x=>x.id===id), part=$('#fplan .fpart.cur'), a=part&&part.querySelector(`.anc[data-a="${id}"]`);
+  if(!ANIM||!a||$('#fplan').style.display!=='block'){openApt(u);return}
+  mark(id);
+  const r=part.getBoundingClientRect(),b=a.getBoundingClientRect();
+  part.style.transformOrigin=`${b.left-r.left}px ${b.top-r.top}px`;
+  anim($('#pins'),[{opacity:1},{opacity:0}],200).onfinish=()=>$('#pins').style.opacity=0;
+  anim(part,[{transform:'none',opacity:1},{transform:'scale(2.8)',opacity:0}],520).onfinish=()=>{$('#pins').style.opacity='';openApt(u)};
 }
 function openApt(u){
-  cur=u; const f=u.floor, l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('apt');
-  const tabs=[u.model&&['3d','3D byt'],['foto','Fotografie'],['plan','Technický půdorys']].filter(Boolean);
+  cur=u; curF=u.floor; const f=u.floor, l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('apt'); rail(f); crumbs(f,u);
+  const tabs=[u.model&&['3d','3D byt'],['plan','Půdorys'],['foto','Fotografie domu']].filter(Boolean);
+  $('#tabs').style.display='flex';
   $('#tabs').innerHTML=tabs.map((t,i)=>`<button data-t="${t[0]}" class="${i?'':'on'}">${t[1]}</button>`).join('');
-  $('#tabs').onclick=e=>{const t=e.target.dataset.t;if(t)show(t)};
+  $('#tabs').onclick=e=>{const t=e.target.closest('[data-t]');if(t)show(t.dataset.t)};
   show(tabs[0][0],true);
-  $('#vlabel').innerHTML=`<span class="pill">Byt ${nb(u.id)} · ${u.layout}</span>`;
-  const fi=FL.indexOf(f);
+  const fi=FL.indexOf(f), ui=l.indexOf(u), pv=l[ui-1], nx=l[ui+1];
   $('#info').innerHTML=`
-    ${navRow(f,'Plán patra')}
+    ${navRow(f,fname(f))}
     <h2>Byt ${nb(u.id)}</h2>
     <div class="sub">${u.layout} · ${fname(f)} · ${P.house}</div>
     <div class="price">${czk(u.price)}</div>
@@ -409,18 +491,21 @@ function openApt(u){
       <div><span>Stav</span><b>dokončeno</b></div>
     </div>
     <details class="rooms"><summary>Místnosti (${u.rooms.length})</summary>${u.rooms.map(r=>`<div><span>${r[0]}</span><b>${m2(r[1])}</b></div>`).join('')}</details>
-    <div class="others"><h3>Byty v&nbsp;tomto patře · ${l.length}</h3>
+    <div class="astep"><button id="aprev" ${pv?'':'disabled'}>‹ ${pv?nb(pv.id):'Byt'}</button><span>Byt ${ui+1} z&nbsp;${l.length} v&nbsp;patře</span><button id="anext" ${nx?'':'disabled'}>${nx?nb(nx.id):'Byt'} ›</button></div>
+    <div class="others"><h3>Další byty v&nbsp;patře · ${l.length}</h3>
       ${unitList(l,u)}
     </div>
     <p class="demo-note">Demo pro Central Group. Ceny a&nbsp;plochy z&nbsp;veřejného ceníku k&nbsp;${nb(P.stateDate)}, půdorysy z&nbsp;webu. 3D model je ilustrační vizualizace podle půdorysu; fotografie jsou vizualizace projektu.</p>`;
   $('#weblink').href=u.url; $('#weblink').textContent='Detail a PDF';
-  $('#back').onclick=()=>openFloor(f);
-  $('#fdn').onclick=()=>openFloor(FL[fi-1]);
-  $('#fup').onclick=()=>openFloor(FL[fi+1]);
-  $('#info').querySelector('.others').onclick=e=>{const b=e.target.closest('.unit'); if(b) openApt(U.find(x=>x.id===b.dataset.id))};
+  $('#back').onclick=backToFloor;
+  $('#fdn').onclick=()=>openFloor(FL[fi-1],{dir:'in'});
+  $('#fup').onclick=()=>openFloor(FL[fi+1],{dir:'in'});
+  if(pv) $('#aprev').onclick=()=>stepApt(pv,-1); if(nx) $('#anext').onclick=()=>stepApt(nx,1);
+  $('#info').querySelector('.others').onclick=e=>{const b=e.target.closest('.unit'); if(b&&b.dataset.id!==u.id) stepApt(U.find(x=>x.id===b.dataset.id),1)};
   $('#info').scrollTop=0;
   $('#apt').classList.add('open');
 }
+function stepApt(u,s){openApt(u);anim($('#model'),[{transform:`translateX(${s*12}%)`,opacity:0},{transform:'none',opacity:1}],450);anim($('#info .scroll')||$('#info'),[{opacity:.3},{opacity:1}],350)}
 function show(t,enter){
   const u=cur; clearInterval(gt);
   [...$('#tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===t));
@@ -435,14 +520,14 @@ function show(t,enter){
   if(t!=='foto'){void m.offsetWidth; m.classList.add('enter')}
   if(t==='foto'){
     g.innerHTML=P.gallery.map((p,i)=>`<img src="${p[0]}" alt="${p[1]}" class="${i?'':'on'}">`).join('')+`<button class="nav prev" aria-label="Předchozí">‹</button><button class="nav next" aria-label="Další">›</button>`;
-    gi=0; $('#vlabel').innerHTML=`<span class="pill">${P.gallery[0][1]} · vizualizace</span>`;
-    const go=d=>{const im=[...g.querySelectorAll('img')];im[gi].classList.remove('on');gi=(gi+d+im.length)%im.length;im[gi].classList.add('on');$('#vlabel').innerHTML=`<span class="pill">${P.gallery[gi][1]} · vizualizace</span>`};
+    gi=0;
+    const go=d=>{const im=[...g.querySelectorAll('img')];im[gi].classList.remove('on');gi=(gi+d+im.length)%im.length;im[gi].classList.add('on')};
     g.querySelector('.prev').onclick=()=>{clearInterval(gt);go(-1)};
     g.querySelector('.next').onclick=()=>{clearInterval(gt);go(1)};
     if(!SHOT) gt=setInterval(()=>go(1),4500);
-  } else $('#vlabel').innerHTML=`<span class="pill">Byt ${nb(u.id)} · ${u.layout}</span>`;
+  }
 }
-function closeApt(){clearInterval(gt);$('#apt').classList.remove('open');setTimeout(resetHouse,80)}
+function closeApt(){clearInterval(gt);cur=null;curF=null;$('#apt').classList.remove('open');setTimeout(resetHouse,80)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#apt').classList.contains('open'))closeApt()});
 $('#viewer').addEventListener('pointermove',e=>{
   if(touch)return; const r=e.currentTarget.getBoundingClientRect();
@@ -454,7 +539,7 @@ document.querySelectorAll('[data-todo]').forEach(a=>a.addEventListener('click',e
 /* deep links for screenshots / video: #hover=8  #apt=H362&tab=plan  #still */
 const Q=Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(x=>x.split('=')));
 if('still' in Q||Q.hover||Q.apt||Q.floor) stopInvite();
-if(Q.floor){openFloor(+Q.floor,Q.fv);if(Q.unit){const id='H '+Q.unit;{const pth=document.querySelector(`#fplan .fu[data-id="${id}"]`);if(pth){const ps=[...document.querySelectorAll('#fplan .fpart')];setPart(ps.indexOf(pth.closest('.fpart')))}}document.querySelectorAll('#fplan .fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));document.querySelectorAll('#fplan .fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));document.querySelectorAll('#info .unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))}}
+if(Q.floor){openFloor(+Q.floor,{unit:Q.unit?'H '+Q.unit:null})}
 if(Q.apt){const u=U.find(u=>u.id.replace(' ','')===Q.apt);openApt(u);if(Q.tab)show(Q.tab)}
 if(Q.hover){const f=+Q.hover;hl(f);const q=P.floors[f],ix=1120;
   const at=(a,b)=>a[1]+(b[1]-a[1])*(ix-a[0])/(b[0]-a[0]);
