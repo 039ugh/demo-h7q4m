@@ -115,9 +115,10 @@ h1{font-size:clamp(34px,4.4vw,58px);line-height:1.02;font-weight:800;margin:8px 
 .pin:hover,.pin.on{background:var(--accent);z-index:3}.pin:hover::after,.pin.on::after{background:var(--accent)}
 .pin:hover span,.pin.on span{color:var(--accent-ink)}
 .pin.dot{padding:0;width:24px;height:24px;border-radius:50%;background:var(--accent);border:5px solid rgba(255,212,0,.4);background-clip:padding-box;transform:translate(-50%,-50%);box-shadow:none}
-.pin.dot>*,.pin.dot::after,.pin.dot::before{display:none}
+.pin.dot::after,.pin.dot::before{display:none}
+.sr,.pin.dot>*{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .pin.dot.on,.pin.dot:hover{padding:7px 11px;width:auto;height:auto;border-radius:10px;transform:translate(-50%,calc(-100% - 6px))}
-.pin.dot.on>*,.pin.dot:hover>*{display:inline}
+.pin.dot.on>b,.pin.dot.on>span,.pin.dot:hover>b,.pin.dot:hover>span{position:static!important;width:auto;height:auto;clip:auto}
 .tabs button i{font-style:normal;margin-left:6px;color:#b08f00}.tabs button.on i{color:#8a6f00}
 .tabs button:disabled{opacity:.35;cursor:default}
 .crumbs{display:flex;align-items:center;gap:6px;background:rgba(15,18,24,.8);border:1px solid var(--line);padding:6px 8px;border-radius:999px;font-size:14px;font-weight:700}
@@ -387,13 +388,16 @@ function placePins(){
   const fp=$('#fplan'), part=fp.querySelector('.fpart.cur'), pins=$('#pins'); if(!part||!pins) return;
   const R=fp.getBoundingClientRect();
   const it=[...part.querySelectorAll('.anc')].map(a=>{const b=a.getBoundingClientRect();return {u:U.find(x=>x.id===a.dataset.a),px:+a.dataset.px,x:b.left+b.width/2-R.left,y:b.top+b.height/2-R.top}});
-  pins.innerHTML=it.map(o=>`<button class="pin" data-id="${o.u.id}" style="left:${o.x}px;top:${o.y}px" aria-label="${o.u.layout} ${mil(o.u.price)}, byt ${o.u.id}"><b>${o.u.layout}</b><span>${mil(o.u.price)}</span></button>`).join('');
+  pins.innerHTML=it.map(o=>`<button class="pin" data-id="${o.u.id}" style="left:${o.x}px;top:${o.y}px"><b>${o.u.layout}</b> <span>${mil(o.u.price)}</span><em class="sr">, byt ${nb(o.u.id)}</em></button>`).join('');
   [...pins.children].forEach(el=>{const b=el.getBoundingClientRect(),lo=R.left+4-b.left,hi=R.right-4-b.right,dx=lo>0?lo:hi<0?hi:0;if(dx){el.style.marginLeft=dx+'px';el.style.setProperty('--dx',-dx+'px')}});
   const placed=[];
   [...pins.children].map((el,i)=>({el,px:it[i].px})).sort((a,b)=>b.px-a.px).forEach(({el})=>{
     const b=el.getBoundingClientRect(), hit=placed.some(q=>!(b.right+4<q.left||q.right+4<b.left||b.bottom+4<q.top||q.bottom+4<b.top));
     if(hit) el.classList.add('dot'); else placed.push(b);
   });
+  const dots=[];
+  [...pins.querySelectorAll('.dot')].forEach(el=>{const b=el.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2;
+    if(dots.some(q=>Math.hypot(q[0]-cx,q[1]-cy)<30)||placed.some(q=>cx>q.left-14&&cx<q.right+14&&cy>q.top-14&&cy<q.bottom+14)) el.remove(); else dots.push([cx,cy])});
 }
 function setPart(i,dir){
   const fp=$('#fplan'), ps=[...fp.querySelectorAll('.fpart')]; if(i==null) i=fcur;
