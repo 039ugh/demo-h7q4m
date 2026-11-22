@@ -422,7 +422,7 @@ function show(t,enter){
   m.className='model'+(t==='plan'?' plan':'');
   if(t!=='foto'){void m.offsetWidth; m.classList.add('enter')}
   if(t==='foto'){
-    g.innerHTML=P.gallery.map((p,i)=>`<img src="${p[0]}" alt="${p[1]}" loading="${i?'lazy':'eager'}" decoding="async" class="${i?'':'on'}">`).join('')+`<button class="nav prev" aria-label="Předchozí">‹</button><button class="nav next" aria-label="Další">›</button>`;
+    g.innerHTML=P.gallery.map((p,i)=>`<img src="${p[0]}" alt="${p[1]}" class="${i?'':'on'}">`).join('')+`<button class="nav prev" aria-label="Předchozí">‹</button><button class="nav next" aria-label="Další">›</button>`;
     gi=0; $('#vlabel').innerHTML=`<span class="pill">${P.gallery[0][1]} · vizualizace</span>`;
     const go=d=>{const im=[...g.querySelectorAll('img')];im[gi].classList.remove('on');gi=(gi+d+im.length)%im.length;im[gi].classList.add('on');$('#vlabel').innerHTML=`<span class="pill">${P.gallery[gi][1]} · vizualizace</span>`};
     g.querySelector('.prev').onclick=()=>{clearInterval(gt);go(-1)};
