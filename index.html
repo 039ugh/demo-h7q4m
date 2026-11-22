@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rezidence Parková čtvrť – vyberte si byt na domě</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/tower.jpg">
+<style>
+:root{
+  --ink:#0f1218; --line:rgba(255,255,255,.14);
+  --txt:#f4f1ea; --muted:#b9b4aa; --accent:#ffe500; --accent-ink:#1a1700;
+  --glow:rgba(255,229,0,.28);
+  font-family:Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--ink);color:var(--txt);overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+
+/* ---------- stage: photo + floors, behaves like background-size:cover ---------- */
+#stage{position:fixed;inset:0;overflow:hidden;background:#0b1020}
+#frame{position:absolute;
+  --W:max(100vw,220vh); width:var(--W); height:calc(var(--W) / 2.2);
+  left:clamp(calc(100vw - var(--W)), calc(50vw - var(--W) * var(--fx,.55)), 0px);
+  top:clamp(calc(100vh - var(--W) / 2.2), calc(55vh - var(--W) / 2.2 * .5), 0px);
+  transition:transform .75s cubic-bezier(.6,0,.2,1)}
+#frame svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#dim{fill:#070a10;opacity:0;transition:opacity .25s}
+.hovering #dim{opacity:.5}
+#lit,#glow{opacity:0;transition:opacity .2s}
+.hovering #lit,.hovering #glow{opacity:1}
+#glow{fill:rgba(255,229,0,.16);stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.hit{fill:transparent;cursor:pointer}
+.invite #glow{animation:inv 1.6s ease-in-out infinite}
+@keyframes inv{0%,100%{fill:rgba(255,229,0,.06)}50%{fill:rgba(255,229,0,.26)}}
+#shade{position:fixed;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(10,13,20,.85) 0%,rgba(10,13,20,.55) 26%,rgba(10,13,20,0) 46%),
+             linear-gradient(0deg,rgba(10,13,20,.55) 0%,rgba(10,13,20,0) 25%)}
+
+/* ---------- hero ---------- */
+header.top{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;padding:20px clamp(16px,3vw,40px);z-index:5;pointer-events:none}
+.brand{font-weight:800;letter-spacing:.02em;font-size:14px;background:var(--accent);color:var(--accent-ink);padding:8px 10px;line-height:1;border-radius:4px}
+.topcta{pointer-events:auto}
+.hero{position:fixed;left:clamp(16px,4vw,64px);top:50%;transform:translateY(-50%);max-width:430px;z-index:4;transition:opacity .3s}
+.eyebrow{color:var(--muted);font-size:14px;font-weight:600;letter-spacing:.02em}
+h1{font-size:clamp(34px,4.4vw,58px);line-height:1.02;font-weight:800;margin:8px 0 14px;letter-spacing:-.02em}
+.lead{color:#ddd8ce;font-size:17px;line-height:1.5}
+.facts{display:flex;gap:22px;margin:18px 0 26px}
+.facts b{display:block;font-size:24px;font-weight:800;white-space:nowrap}
+.facts span{color:var(--muted);font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--accent);color:var(--accent-ink);font-weight:800;padding:14px 20px;border-radius:999px;font-size:16px;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:rgba(255,255,255,.1);color:var(--txt);backdrop-filter:blur(8px);border:1px solid var(--line)}
+.hint{margin-top:16px;color:var(--muted);font-size:14px;display:flex;gap:8px;align-items:center}
+.hint i{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px var(--glow)}
+.zooming .hero,.zooming #shade,.zooming #tip{opacity:0}
+
+/* ---------- tooltip ---------- */
+#tip{position:fixed;z-index:6;pointer-events:none;background:rgba(15,18,24,.92);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:12px;padding:12px 14px;min-width:210px;opacity:0;transform:translateY(6px);transition:opacity .15s,transform .15s}
+#tip.show{opacity:1;transform:none}
+#tip .f{font-weight:800;font-size:18px}
+#tip .s{color:var(--muted);font-size:13px;margin-top:2px}
+#tip .p{margin-top:8px;font-size:14px}
+#tip .p b{color:var(--accent)}
+#tip .c{margin-top:8px;font-size:12px;color:var(--muted)}
+
+/* ---------- apartment view ---------- */
+#apt{position:fixed;inset:0;z-index:9;background:#1c1b1a;display:grid;grid-template-columns:1fr 420px;opacity:0;pointer-events:none;transition:opacity .4s}
+#apt.open{opacity:1;pointer-events:auto}
+.viewer{position:relative;overflow:hidden;perspective:1400px;background:radial-gradient(ellipse at 50% 45%,#2b2a29 0%,#252423 60%,#1c1b1a 100%)}
+.model{position:absolute;inset:7% 3% 11%;display:grid;place-items:center;transform-style:preserve-3d}
+.model img{max-width:100%;max-height:82vh;object-fit:contain;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out;filter:drop-shadow(0 40px 60px rgba(0,0,0,.5));
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(0deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(0deg,transparent,#000 7%,#000 93%,transparent);mask-composite:intersect}
+.model.enter{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{transform:translateY(50px) rotateX(40deg) scale(.8);opacity:0}to{transform:none;opacity:1}}
+.model.plan img{background:#fff;padding:18px;border-radius:12px;-webkit-mask-image:none;mask-image:none;filter:drop-shadow(0 30px 50px rgba(0,0,0,.45))}
+.vlabel{position:absolute;left:24px;top:22px;display:flex;gap:10px;align-items:center;z-index:2}
+.vlabel .pill{background:rgba(15,18,24,.75);padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;backdrop-filter:blur(8px)}
+.mini{position:absolute;right:20px;top:18px;width:150px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0b1020;z-index:2;cursor:pointer}
+.mini svg{display:block;width:100%;height:auto}
+.mini span{position:absolute;left:8px;bottom:6px;font-size:11px;font-weight:800;background:rgba(15,18,24,.8);padding:3px 6px;border-radius:5px}
+.tabs{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:4px;background:rgba(15,18,24,.8);backdrop-filter:blur(10px);padding:5px;border-radius:999px;border:1px solid var(--line);z-index:2}
+.tabs button{white-space:nowrap;padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px}
+.tabs button.on{background:var(--txt);color:var(--ink)}
+.gal{position:absolute;inset:0;display:none}
+.gal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
+.gal img.on{opacity:1}
+.gal .nav{position:absolute;top:50%;width:48px;height:48px;border-radius:50%;background:rgba(15,18,24,.7);font-size:22px;transform:translateY(-50%);z-index:2}
+.gal .prev{left:18px}.gal .next{right:18px}
+.nomodel{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);color:var(--muted);font-size:13px;background:rgba(15,18,24,.7);padding:7px 12px;border-radius:8px;white-space:nowrap;z-index:2}
+
+.fplan{position:absolute;inset:70px 196px 28px 28px;display:none;gap:22px;justify-content:center;align-items:center}
+.fpart{display:flex;flex-direction:column;gap:8px;align-items:center}
+.fpart>span{font-size:12px;font-weight:700;color:var(--muted)}
+.fplan svg{display:block;background:#fff;border-radius:14px;box-shadow:0 30px 60px rgba(0,0,0,.45)}
+.fu{fill:#ffd400;fill-opacity:.5;mix-blend-mode:multiply;cursor:pointer;transition:fill-opacity .15s}
+.fu:hover,.fu.on{fill-opacity:1}
+.fl{font-weight:800;fill:#14171d;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.fl.sm{opacity:0;transition:opacity .15s}.fl.sm.on{opacity:1}
+.legend{position:absolute;right:24px;bottom:22px;display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);background:rgba(15,18,24,.75);padding:8px 12px;border-radius:8px}
+.legend i{width:14px;height:14px;border-radius:3px;background:#ffd400}
+.fhint{color:var(--muted);font-size:14px;margin:14px 0 4px}
+.info{border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:#14171d}
+.info .scroll{overflow:auto;padding:22px 24px 12px;flex:1;min-height:0}
+.navrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.back{display:inline-flex;gap:8px;align-items:center;color:var(--muted);font-weight:700;font-size:14px}
+.fstep{display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px}
+.fstep button{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);font-size:16px}
+.fstep button:disabled{opacity:.3;cursor:default}
+.info h2{font-size:36px;font-weight:800;letter-spacing:-.02em}
+.info .sub{color:var(--muted);margin-top:4px}
+.price{font-size:28px;font-weight:800;margin:16px 0 2px;white-space:nowrap}
+.price-note{color:var(--muted);font-size:12px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.kv div{background:rgba(255,255,255,.05);border-radius:10px;padding:9px 12px}
+.kv span{display:block;color:var(--muted);font-size:12px}
+.kv b{font-size:16px;white-space:nowrap}
+details.rooms{font-size:14px;border-top:1px solid var(--line);padding-top:10px}
+details.rooms summary{cursor:pointer;font-weight:700;color:var(--muted);list-style:none;padding:4px 0}
+details.rooms summary::after{content:" ▾"}
+.rooms div{display:flex;justify-content:space-between;padding:4px 0;color:#ddd8ce}
+.rooms b{white-space:nowrap}
+.others{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.others h3{font-size:15px;font-weight:800;margin-bottom:8px}
+.unit{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;padding:8px;border-radius:10px;border:1px solid transparent}
+.unit:hover{background:rgba(255,255,255,.05);border-color:var(--line)}
+.unit.cur{background:rgba(255,229,0,.08);border-color:rgba(255,229,0,.45)}
+.unit .th{width:60px;height:44px;border-radius:7px;background:#232833 center/cover;display:grid;place-items:center;font-size:11px;color:var(--muted);font-weight:800}
+.unit .th.pl{background:#fff center/contain no-repeat}
+.unit b{font-size:15px}
+.unit .m{color:var(--muted);font-size:12px;margin-top:1px}
+.unit .pr{font-weight:800;font-size:14px;text-align:right;white-space:nowrap}
+.tag{display:inline-block;margin-left:6px;font-size:10px;font-weight:800;color:var(--accent-ink);background:var(--accent);padding:2px 5px;border-radius:4px;vertical-align:2px}
+.info .cta{padding:14px 24px 18px;display:grid;gap:8px;border-top:1px solid var(--line)}
+.demo-note{color:var(--muted);font-size:11px;line-height:1.45;margin-top:14px}
+
+/* ---------- mobile ---------- */
+@media (max-width:860px){
+  #shade{background:linear-gradient(180deg,rgba(10,13,20,.88) 0%,rgba(10,13,20,.4) 30%,rgba(10,13,20,0) 42%),linear-gradient(0deg,rgba(10,13,20,.85) 0%,rgba(10,13,20,0) 24%)}
+  #frame{--W:235vw;height:calc(var(--W) / 2.2);left:calc(50vw - var(--W) * .573);top:calc(54vh - var(--W) / 2.2 * .5)}
+  #frame svg{-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%)}
+  #tip{left:16px!important;right:16px;top:auto!important;bottom:calc(76px + env(safe-area-inset-bottom))}
+  .hero{top:62px;transform:none;left:16px;right:16px;max-width:none}
+  h1{font-size:31px;margin:4px 0 6px}
+  .lead{display:none}
+  .facts{gap:16px;margin:10px 0 0}
+  .facts b{font-size:19px}
+  .hero .btn{display:none}
+  .hint{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));margin:0;background:rgba(15,18,24,.85);padding:12px 14px;border-radius:12px;border:1px solid var(--line);color:var(--txt)}
+  #apt{grid-template-columns:1fr;grid-template-rows:46vh 1fr}
+  .info{border-left:0;border-top:1px solid var(--line)}
+  .info .scroll{padding:16px}
+  .info h2{font-size:26px}.price{font-size:22px;margin-top:10px}
+  .mini{width:96px;right:12px;top:12px}
+  .fplan{inset:52px 116px 10px 10px;gap:8px}.legend{display:none}
+  .model img{max-height:36vh}
+  .vlabel{left:12px;top:12px}
+  .tabs{bottom:10px}.tabs button{padding:8px 12px;font-size:13px}
+  .nomodel{bottom:62px;font-size:12px}
+  .info .cta{padding:10px 16px calc(12px + env(safe-area-inset-bottom));grid-template-columns:1fr 1fr}
+  .info .cta .btn{padding:12px 10px;font-size:14px}
+  .topcta{display:none}
+}
+.shot *,.shot{transition:none!important;animation:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage"><div id="frame"><svg id="ov" aria-label="Patra domu"></svg></div></div>
+<div id="shade"></div>
+
+<header class="top">
+  <span class="brand">CENTRAL GROUP · DEMO</span>
+  <a class="btn ghost topcta" href="#" data-todo="odkaz na Sjednat schůzku">Sjednat schůzku</a>
+</header>
+
+<section class="hero">
+  <div class="eyebrow" id="place"></div>
+  <h1 id="title"></h1>
+  <p class="lead">Najeďte na dům, klikněte na patro a&nbsp;byt se otevře ve&nbsp;3D.</p>
+  <div class="facts" id="facts"></div>
+  <button class="btn" id="go">Vybrat byt na domě</button>
+  <div class="hint"><i></i><span id="hinttxt">Najeďte myší na patro</span></div>
+</section>
+
+<div id="tip"></div>
+
+<section id="apt" aria-label="Detail bytu">
+  <div class="viewer" id="viewer">
+    <div class="vlabel" id="vlabel"></div>
+    <div class="mini" id="mini" title="Zpět na dům"></div>
+    <div class="model" id="model"></div>
+    <div class="gal" id="gal"></div>
+    <div class="fplan" id="fplan"></div><div class="legend" id="legend" hidden><i></i>volné byty podle ceníku</div>
+    <div class="nomodel" id="nomodel" hidden></div>
+    <div class="tabs" id="tabs"></div>
+  </div>
+  <div class="info">
+    <div class="scroll" id="info"></div>
+    <div class="cta">
+      <a class="btn" href="#" data-todo="formulář Sjednat schůzku s předvyplněným bytem">Domluvit prohlídku</a>
+      <a class="btn ghost" id="weblink" href="#" target="_blank" rel="noopener">Detail a PDF</a>
+    </div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="floors.js"></script>
+<script>
+const SHOT=location.hash.includes('desk'); if(SHOT) document.documentElement.classList.add('shot');
+const P=window.PROJECT, U=P.units, NS='http://www.w3.org/2000/svg';
+const $=s=>document.querySelector(s);
+const nb=s=>String(s).replace(/ /g,' ');
+const czk=n=>nb(n.toLocaleString('cs-CZ').replace(/\s/g,' ')+' Kč');
+const mil=n=>nb((n/1e6).toLocaleString('cs-CZ',{maximumFractionDigits:1})+' mil. Kč');
+const m2=n=>n==null?'–':nb(n.toLocaleString('cs-CZ')+' m²');
+const fname=f=>f===0?'Přízemí':f+'. patro';
+const touch=matchMedia('(hover:none)').matches&&!location.hash.includes('desk');
+const byFloor={}; U.forEach(u=>(byFloor[u.floor]=byFloor[u.floor]||[]).push(u));
+Object.values(byFloor).forEach(l=>l.sort((a,b)=>(!!b.model-!!a.model)||a.price-b.price));
+const FL=Object.keys(byFloor).map(Number).sort((a,b)=>a-b);
+const minP=Math.min(...U.map(u=>u.price));
+const pts=p=>p.map(q=>q.join(',')).join(' ');
+
+/* hero */
+document.documentElement.style.setProperty('--fx',P.image.focusX);
+$('#place').textContent=P.place+' · '+P.house;
+$('#title').textContent=P.name;
+$('#facts').innerHTML=`<div><b>${U.length}</b><span>volných bytů</span></div><div><b>od ${mil(minP)}</b><span>vč. DPH</span></div><div><b>Hotovo</b><span>dům dokončen</span></div>`;
+$('#hinttxt').textContent=touch?'Klepněte na patro domu':'Najeďte myší na patro';
+
+/* house: photo, lit floor = same photo brightened and clipped to the floor's facade shape */
+function houseSvg(svg,withHits){
+  const W=P.image.w,H=P.image.h, id=svg.id;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=`<defs>
+    <clipPath id="${id}sil"><polygon points="${pts(P.sil)}"/></clipPath>
+    <clipPath id="${id}fc"><polygon class="fcp"/></clipPath>
+    <mask id="${id}hole"><rect width="${W}" height="${H}" fill="#fff"/><g clip-path="url(#${id}sil)"><polygon class="fcp" fill="#000"/></g></mask>
+    <filter id="${id}lift"><feComponentTransfer><feFuncR type="linear" slope="1.45" intercept=".04"/><feFuncG type="linear" slope="1.38" intercept=".03"/><feFuncB type="linear" slope="1.1"/></feComponentTransfer></filter>
+  </defs>
+  <image href="${P.image.src}" width="${W}" height="${H}"/>
+  <rect id="dim" width="${W}" height="${H}" mask="url(#${id}hole)"/>
+  <g clip-path="url(#${id}sil)">
+    <g clip-path="url(#${id}fc)"><image id="lit" href="${P.image.src}" width="${W}" height="${H}" filter="url(#${id}lift)"/></g>
+    <polygon id="glow" class="fcp"/>
+    ${withHits?P.floors.map((p,f)=>`<polygon class="hit" data-f="${f}" points="${pts(p)}"/>`).join(''):''}
+  </g>`;
+}
+const svg=$('#ov'); houseSvg(svg,true);
+function hl(f){
+  const on=f!=null&&f>=0;
+  document.body.classList.toggle('hovering',on);
+  if(on) svg.querySelectorAll('.fcp').forEach(p=>p.setAttribute('points',pts(P.floors[f])));
+}
+const tip=$('#tip');
+function tipHtml(f){
+  const l=byFloor[f];
+  if(!l) return `<div class="f">${fname(f)}</div><div class="s">Bez volných bytů v&nbsp;ceníku</div>`;
+  const kinds=[...new Set(l.map(u=>u.layout))].sort().join(' · ');
+  return `<div class="f">${fname(f)}</div><div class="s">${kinds}</div><div class="p"><b>${l.length} ${l.length===1?'volný byt':l.length<5?'volné byty':'volných bytů'}</b> · od ${mil(Math.min(...l.map(u=>u.price)))}</div><div class="c">${touch?'Klepněte':'Klikněte'} a&nbsp;otevře se byt</div>`;
+}
+function placeTip(f,x,y){
+  tip.innerHTML=tipHtml(f); tip.classList.add('show');
+  tip.style.left=Math.min(x+22,innerWidth-tip.offsetWidth-10)+'px';
+  tip.style.top=Math.max(10,Math.min(y-tip.offsetHeight/2,innerHeight-tip.offsetHeight-10))+'px';
+}
+let invite=true;
+svg.addEventListener('pointermove',e=>{
+  if(touch) return;
+  const b=e.target.closest('.hit');
+  if(!b){tip.classList.remove('show');hl(-1);return}
+  stopInvite(); hl(+b.dataset.f); placeTip(+b.dataset.f,e.clientX,e.clientY);
+});
+svg.addEventListener('pointerleave',()=>{tip.classList.remove('show');hl(-1)});
+svg.addEventListener('click',e=>{const b=e.target.closest('.hit'); if(b) zoomTo(+b.dataset.f)});
+$('#go').onclick=()=>zoomTo(8);
+
+/* invite: floors light up one after another, bottom to top */
+let it=null;
+function stopInvite(){if(it){clearInterval(it);it=null;document.body.classList.remove('invite');if(!touch)hl(-1)}}
+(function(){let k=0;document.body.classList.add('invite');hl(FL[0]);it=setInterval(()=>{k++;if(k>=FL.length){stopInvite();return}hl(FL[k])},420)})();
+
+/* zoom into the floor, then open the apartment */
+function zoomTo(f){
+  stopInvite(); hl(f); tip.classList.remove('show');
+  const r=svg.querySelector(`.hit[data-f="${f}"]`).getBoundingClientRect();
+  const fr=$('#frame'), b=fr.getBoundingClientRect();
+  const cx=r.left+r.width/2-b.left, cy=r.top+r.height/2-b.top;
+  fr.style.transformOrigin=`${cx}px ${cy}px`;
+  const dx=innerWidth/2-(r.left+r.width/2), dy=innerHeight/2-(r.top+r.height/2);
+  fr.style.transform=`translate(${dx}px,${dy}px) scale(2.4)`;
+  document.body.classList.add('zooming');
+  setTimeout(()=>openFloor(f),560);
+}
+function resetHouse(){
+  const fr=$('#frame'); fr.style.transform=''; document.body.classList.remove('zooming'); hl(-1);
+}
+
+/* apartment view: 3D first, info + other flats of the floor on the right */
+const mini=$('#mini'); mini.innerHTML='<svg id="mv"></svg><span id="mvl"></span>';
+const mv=$('#mv'); houseSvg(mv,false);
+mv.setAttribute('viewBox','800 40 920 920'); mv.setAttribute('preserveAspectRatio','xMidYMid slice');
+mv.querySelector('#dim')?.remove(); mv.querySelectorAll('#lit,#glow').forEach(e=>e.style.opacity=1);
+mini.onclick=closeApt;
+let cur=null, gi=0, gt;
+const unitList=(l,u)=>l.map(o=>`<button class="unit ${o===u?'cur':''}" data-id="${o.id}">
+        <span class="th ${o.thumb?'':'pl'}" style="background-image:url(${o.thumb||o.plan})"></span>
+        <span><b>${nb(o.id)}</b> · ${o.layout}${o.model?'<span class="tag">3D</span>':''}<div class="m">${m2(o.area)}${o.outdoor?` + ${m2(o.outdoor)}`:''} · ${nb(o.orient)}</div></span>
+        <span class="pr">${mil(o.price)}</span></button>`).join('');
+const navRow=(f,back)=>{const fi=FL.indexOf(f);return `<div class="navrow"><button class="back" id="back">← ${back}</button>
+      <div class="fstep"><button id="fdn" aria-label="Patro níž" ${fi===0?'disabled':''}>↓</button><span>${fname(f)}</span><button id="fup" aria-label="Patro výš" ${fi===FL.length-1?'disabled':''}>↑</button></div></div>`};
+function setMini(f){mv.querySelectorAll('.fcp').forEach(p=>p.setAttribute('points',pts(P.floors[f])));$('#mvl').textContent=fname(f)}
+function mode(m){
+  const fl=m==='floor';
+  $('#fplan').style.display=fl?'flex':'none'; $('#legend').hidden=!fl;
+  $('#tabs').style.display=fl?'none':'flex';
+  if(fl){$('#model').style.display='none';$('#gal').style.display='none';$('#nomodel').hidden=true;clearInterval(gt)}
+}
+function fitPlan(){
+  const fp=$('#fplan'); if(fp.style.display!=='flex') return;
+  const sv=[...fp.querySelectorAll('svg')]; if(!sv.length) return;
+  const r=fp.getBoundingClientRect(), cap=sv.length>1?26:0, gap=parseFloat(getComputedStyle(fp).columnGap)||0;
+  const ar=sv.map(v=>{const b=v.viewBox.baseVal;return b.width/b.height}), sum=ar.reduce((a,b)=>a+b,0);
+  const h=Math.max(80,Math.min(r.height-cap,(r.width-gap*(sv.length-1))/sum));
+  sv.forEach((v,i)=>{v.style.height=h+'px';v.style.width=h*ar[i]+'px'});
+}
+addEventListener('resize',fitPlan);
+function openFloor(f){
+  cur=null; const l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('floor');
+  const byN=Object.fromEntries(U.map(u=>[u.n,u]));
+  const parts=FLOORPLANS[f]||[];
+  $('#fplan').innerHTML=parts.map((pt,pi)=>`<div class="fpart">${parts.length>1?`<span>Část domu ${'ABC'[pi]}</span>`:''}<svg viewBox="0 0 ${pt.w} ${pt.h}" style="aspect-ratio:${pt.w}/${pt.h}">
+    <image href="${pt.src}" width="${pt.w}" height="${pt.h}"/>
+    ${pt.units.map(x=>{const u=byN[x.n];return `<path class="fu" data-id="${u.id}" d="${x.d}"><title>${u.id} · ${u.layout} · ${m2(u.area)} · ${mil(u.price)}</title></path>`}).join('')}
+    ${pt.units.map(x=>{const u=byN[x.n],big=x.px>1500,fs=big?Math.max(16,Math.min(30,Math.sqrt(x.px)*.45)):15;
+      return `<g class="fl ${big?'':'sm'}" data-for="${u.id}"><text x="${x.cx}" y="${x.cy-fs*.55}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${u.layout} · ${m2(u.area)}</text><text x="${x.cx}" y="${x.cy+fs*.65}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}">${mil(u.price)}</text></g>`}).join('')}
+  </svg></div>`).join('');
+  fitPlan();
+  // popisky, ktere by se prekryvaly, se ukazou az po najeti
+  $('#fplan').querySelectorAll('svg').forEach(sv=>{
+    const placed=[];
+    [...sv.querySelectorAll('.fl:not(.sm)')].map(g=>({g,b:g.getBBox()})).sort((a,b)=>b.b.width*b.b.height-a.b.width*a.b.height).forEach(({g,b})=>{
+      const hit=placed.some(q=>!(b.x+b.width<q.x||q.x+q.width<b.x||b.y+b.height<q.y||q.y+q.height<b.y));
+      if(hit) g.classList.add('sm'); else placed.push(b);
+    });
+  });
+  $('#vlabel').innerHTML=`<span class="pill">${fname(f)} · plán podlaží</span>`;
+  $('#info').innerHTML=`${navRow(f,'Dům')}
+    <h2>${fname(f)}</h2>
+    <div class="sub">${l.length} ${l.length===1?'volný byt':l.length<5?'volné byty':'volných bytů'} · od ${mil(Math.min(...l.map(u=>u.price)))} · ${P.house}</div>
+    <p class="fhint">Klikněte na byt v&nbsp;plánu nebo v&nbsp;seznamu.</p>
+    <div class="others">${unitList(l,null)}</div>
+    <p class="demo-note">Demo pro Central Group. Plán podlaží, ceny a&nbsp;plochy z&nbsp;veřejného ceníku a&nbsp;PDF bytů k&nbsp;${nb(P.stateDate)}.</p>`;
+  $('#weblink').href=`https://www.central-group.cz/prehled-bytu/189?floorLevels%5B0%5D=${f}&search=true`;
+  $('#weblink').textContent='Ceník patra';
+  const fi=FL.indexOf(f);
+  $('#back').onclick=closeApt;
+  $('#fdn').onclick=()=>openFloor(FL[fi-1]); $('#fup').onclick=()=>openFloor(FL[fi+1]);
+  const lst=$('#info').querySelector('.others'), fp=$('#fplan');
+  const mark=id=>{fp.querySelectorAll('.fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));fp.querySelectorAll('.fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));lst.querySelectorAll('.unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))};
+  lst.onclick=fp.onclick=e=>{const b=e.target.closest('[data-id]'); if(b) openApt(U.find(x=>x.id===b.dataset.id))};
+  lst.onmouseover=fp.onmouseover=e=>{const b=e.target.closest('[data-id]'); mark(b?b.dataset.id:null)};
+  $('#info').scrollTop=0; $('#apt').classList.add('open');
+}
+function openApt(u){
+  cur=u; const f=u.floor, l=[...byFloor[f]].sort((a,b)=>a.n-b.n); setMini(f); mode('apt');
+  const tabs=[u.model&&['3d','3D byt'],['plan','Půdorys'],['foto','Fotografie']].filter(Boolean);
+  $('#tabs').innerHTML=tabs.map((t,i)=>`<button data-t="${t[0]}" class="${i?'':'on'}">${t[1]}</button>`).join('');
+  $('#tabs').onclick=e=>{const t=e.target.dataset.t;if(t)show(t)};
+  show(tabs[0][0],true);
+  $('#vlabel').innerHTML=`<span class="pill">Byt ${nb(u.id)} · ${u.layout}</span>`;
+  const fi=FL.indexOf(f);
+  $('#info').innerHTML=`
+    ${navRow(f,'Plán patra')}
+    <h2>Byt ${nb(u.id)}</h2>
+    <div class="sub">${u.layout} · ${fname(f)} · ${P.house}</div>
+    <div class="price">${czk(u.price)}</div>
+    <div class="price-note">Cena vč. DPH podle ceníku k&nbsp;${nb(P.stateDate)}</div>
+    <div class="kv">
+      <div><span>Podlahová plocha</span><b>${m2(u.area)}</b></div>
+      <div><span>Balkon / terasa</span><b>${m2(u.outdoor)}</b></div>
+      <div><span>Orientace</span><b>${nb(u.orient)}</b></div>
+      <div><span>Stav</span><b>dokončeno</b></div>
+    </div>
+    <details class="rooms"><summary>Místnosti (${u.rooms.length})</summary>${u.rooms.map(r=>`<div><span>${r[0]}</span><b>${m2(r[1])}</b></div>`).join('')}</details>
+    <div class="others"><h3>Byty v&nbsp;tomto patře · ${l.length}</h3>
+      ${unitList(l,u)}
+    </div>
+    <p class="demo-note">Demo pro Central Group. Ceny a&nbsp;plochy z&nbsp;veřejného ceníku k&nbsp;${nb(P.stateDate)}, půdorysy z&nbsp;webu. 3D model je ilustrační vizualizace podle půdorysu; fotografie jsou vizualizace projektu.</p>`;
+  $('#weblink').href=u.url; $('#weblink').textContent='Detail a PDF';
+  $('#back').onclick=()=>openFloor(f);
+  $('#fdn').onclick=()=>openFloor(FL[fi-1]);
+  $('#fup').onclick=()=>openFloor(FL[fi+1]);
+  $('#info').querySelector('.others').onclick=e=>{const b=e.target.closest('.unit'); if(b) openApt(U.find(x=>x.id===b.dataset.id))};
+  $('#info').scrollTop=0;
+  $('#apt').classList.add('open');
+}
+function show(t,enter){
+  const u=cur; clearInterval(gt);
+  [...$('#tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const m=$('#model'), g=$('#gal'), nm=$('#nomodel');
+  g.style.display=t==='foto'?'block':'none';
+  m.style.display=t==='foto'?'none':'grid';
+  nm.hidden=!(t==='plan'&&!u.model);
+  nm.innerHTML='3D model tohoto bytu se vytvoří ze stejného půdorysu';
+  if(t==='3d') m.innerHTML=`<img src="${u.model}" alt="3D model bytu ${u.id}">`;
+  if(t==='plan') m.innerHTML=`<img src="${u.plan}" alt="Půdorys bytu ${u.id}">`;
+  m.className='model'+(t==='plan'?' plan':'');
+  if(t!=='foto'){void m.offsetWidth; m.classList.add('enter')}
+  if(t==='foto'){
+    g.innerHTML=P.gallery.map((p,i)=>`<img src="${p[0]}" alt="${p[1]}" class="${i?'':'on'}">`).join('')+`<button class="nav prev" aria-label="Předchozí">‹</button><button class="nav next" aria-label="Další">›</button>`;
+    gi=0; $('#vlabel').innerHTML=`<span class="pill">${P.gallery[0][1]} · vizualizace</span>`;
+    const go=d=>{const im=[...g.querySelectorAll('img')];im[gi].classList.remove('on');gi=(gi+d+im.length)%im.length;im[gi].classList.add('on');$('#vlabel').innerHTML=`<span class="pill">${P.gallery[gi][1]} · vizualizace</span>`};
+    g.querySelector('.prev').onclick=()=>{clearInterval(gt);go(-1)};
+    g.querySelector('.next').onclick=()=>{clearInterval(gt);go(1)};
+    if(!SHOT) gt=setInterval(()=>go(1),4500);
+  } else $('#vlabel').innerHTML=`<span class="pill">Byt ${nb(u.id)} · ${u.layout}</span>`;
+}
+function closeApt(){clearInterval(gt);$('#apt').classList.remove('open');setTimeout(resetHouse,80)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#apt').classList.contains('open'))closeApt()});
+$('#viewer').addEventListener('pointermove',e=>{
+  if(touch)return; const r=e.currentTarget.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+  const img=$('#model img'); if(img){img.style.setProperty('--ry',(x*10)+'deg');img.style.setProperty('--rx',(-y*8)+'deg')}
+});
+document.querySelectorAll('[data-todo]').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+
+/* deep links for screenshots / video: #hover=8  #apt=H362&tab=plan  #still */
+const Q=Object.fromEntries(location.hash.slice(1).split('&').filter(Boolean).map(x=>x.split('=')));
+if('still' in Q||Q.hover||Q.apt||Q.floor) stopInvite();
+if(Q.floor){openFloor(+Q.floor);if(Q.unit){const id='H '+Q.unit;document.querySelectorAll('#fplan .fu').forEach(p=>p.classList.toggle('on',p.dataset.id===id));document.querySelectorAll('#fplan .fl.sm').forEach(t=>t.classList.toggle('on',t.dataset.for===id));document.querySelectorAll('#info .unit').forEach(b=>b.classList.toggle('cur',b.dataset.id===id))}}
+if(Q.apt){const u=U.find(u=>u.id.replace(' ','')===Q.apt);openApt(u);if(Q.tab)show(Q.tab)}
+if(Q.hover){const f=+Q.hover;hl(f);const q=P.floors[f],ix=1120;
+  const at=(a,b)=>a[1]+(b[1]-a[1])*(ix-a[0])/(b[0]-a[0]);
+  const iy=(at(q[0],q[5])+at(q[1],q[2]))/2;
+  const c=document.createElementNS(NS,'circle');c.setAttribute('cx',ix);c.setAttribute('cy',iy);c.setAttribute('r',10);
+  c.setAttribute('style','fill:rgba(255,255,255,.92);stroke:rgba(255,255,255,.25);stroke-width:12');svg.appendChild(c);
+  const put=()=>{const r=svg.querySelector(`.hit[data-f="${f}"]`).getBoundingClientRect(),R=svg.getBoundingClientRect();placeTip(f,r.right-r.width*.12,R.top+iy*R.height/P.image.h)};
+  put();addEventListener('load',put);addEventListener('resize',put)}
+</script>
+</body>
+</html>
