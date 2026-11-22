@@ -96,7 +96,7 @@ h1{font-size:clamp(34px,4.4vw,58px);line-height:1.02;font-weight:800;margin:8px 
 .fplan{position:absolute;inset:74px 64px 84px 112px;display:none}
 .fpart{position:absolute;inset:0;display:none;align-items:center;justify-content:center;perspective:2200px;perspective-origin:50% 35%}
 .fpart.cur,.fpart.ghost{display:flex}
-.plate{position:relative;transform-style:preserve-3d;transform:rotateX(54deg) rotateZ(-34deg)}
+.plate{position:relative;transform-style:preserve-3d;transform:translate(var(--tx,0px),var(--ty,0px)) rotateX(54deg) rotateZ(-34deg)}
 .plate svg,.slab,.shd{-webkit-mask:var(--cut) 0 0/100% 100% no-repeat;mask:var(--cut) 0 0/100% 100% no-repeat}
 .plate svg{position:relative;display:block;background:var(--cut) 0 0/100% 100% no-repeat}
 .slab{position:absolute;inset:0;background:#5d5852;transform:translateZ(-14px)}
@@ -188,7 +188,7 @@ details.rooms summary::after{content:" ▾"}
   .info .scroll{padding:16px}
   .info h2{font-size:26px}.price{font-size:22px;margin-top:10px}
   .mini{width:72px;right:10px;top:10px}
-  .fplan{inset:58px 6px 60px 6px}.rail{display:none}.plate{transform:rotateX(50deg) rotateZ(-62deg)}.pin{font-size:12px;padding:5px 8px}.crumbs{font-size:12px;padding:4px 6px}
+  .fplan{inset:58px 6px 60px 6px}.rail{display:none}.plate{transform:translate(var(--tx,0px),var(--ty,0px)) rotateX(50deg) rotateZ(-62deg)}.pin{font-size:12px;padding:5px 8px}.crumbs{font-size:12px;padding:4px 6px}
   .model img{max-height:36vh}
   .vlabel{left:12px;top:12px}
   .tabs{bottom:10px}.tabs button{padding:8px 12px;font-size:13px}
@@ -374,13 +374,25 @@ let fcur=0;
 /* plate size: grow the tilted plate until its projected box fills the stage */
 function fitPlate(){
   const fp=$('#fplan'), part=fp.querySelector('.fpart.cur'); if(!part||fp.style.display==='none') return;
-  const sv=part.querySelector('svg'), vb=sv.viewBox.baseVal, R=fp.getBoundingClientRect();
-  let w=parseFloat(sv.style.width)||300;
-  for(let i=0;i<4;i++){
-    sv.style.width=w+'px'; sv.style.height=w*vb.height/vb.width+'px';
-    const b=sv.getBoundingClientRect(); w*=Math.min(R.width*.94/b.width,R.height*.9/b.height);
+  const sv=part.querySelector('svg'), pl=part.querySelector('.plate'), vb=sv.viewBox.baseVal, R=fp.getBoundingClientRect(), fus=[...part.querySelectorAll('.fu')];
+  const size=w=>{sv.style.width=w+'px'; sv.style.height=w*vb.height/vb.width+'px'};
+  const ubox=()=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;fus.forEach(p=>{const r=p.getBoundingClientRect();a=Math.min(a,r.left);b=Math.min(b,r.top);c=Math.max(c,r.right);d=Math.max(d,r.bottom)});return {l:a,t:b,r:c,b:d}};
+  const mob=isMob(), maxW=vb.width*2.3;
+  pl.style.setProperty('--tx','0px'); pl.style.setProperty('--ty','0px');
+  let w=parseFloat(sv.style.width)||300, zoom=false;
+  for(let i=0;i<4;i++){ // whole part fits the stage
+    size(w); const b=sv.getBoundingClientRect(); w*=Math.min(R.width*.94/b.width,R.height*.9/b.height);
   }
-  sv.style.width=w+'px'; sv.style.height=w*vb.height/vb.width+'px';
+  size(w);
+  if(fus.length){ // camera closer to the free flats, the rest of the house runs off screen
+    const fw=mob?.8:.62, fh=mob?.6:.55;
+    for(let i=0;i<3;i++){const u=ubox(), k=Math.min(R.width*fw/(u.r-u.l),R.height*fh/(u.b-u.t)); if(k<=1.02) break; w=Math.min(w*k,maxW); size(w); zoom=true; if(w>=maxW) break}
+  }
+  if(zoom){
+    let tx=0,ty=0;
+    for(let i=0;i<3;i++){const u=ubox(); tx+=R.left+R.width/2-(u.l+u.r)/2; ty+=R.top+R.height*.56-(u.t+u.b)/2;
+      pl.style.setProperty('--tx',tx+'px'); pl.style.setProperty('--ty',ty+'px')}
+  }
   placePins();
 }
 /* labels above the free flats; labels that would collide shrink to dots */
@@ -388,6 +400,7 @@ function placePins(){
   const fp=$('#fplan'), part=fp.querySelector('.fpart.cur'), pins=$('#pins'); if(!part||!pins) return;
   const R=fp.getBoundingClientRect();
   const it=[...part.querySelectorAll('.anc')].map(a=>{const b=a.getBoundingClientRect();return {u:U.find(x=>x.id===a.dataset.a),px:+a.dataset.px,x:b.left+b.width/2-R.left,y:b.top+b.height/2-R.top}});
+  const vis=it.filter(o=>o.x>8&&o.y>8&&o.x<R.width-8&&o.y<R.height-8); it.length=0; it.push(...vis);
   pins.innerHTML=it.map(o=>`<button class="pin" data-id="${o.u.id}" style="left:${o.x}px;top:${o.y}px"><b>${o.u.layout}</b> <span>${mil(o.u.price)}</span><em class="sr">, byt ${nb(o.u.id)}</em></button>`).join('');
   [...pins.children].forEach(el=>{const b=el.getBoundingClientRect(),lo=R.left+4-b.left,hi=R.right-4-b.right,dx=lo>0?lo:hi<0?hi:0;if(dx){el.style.marginLeft=dx+'px';el.style.setProperty('--dx',-dx+'px')}});
   const placed=[];
